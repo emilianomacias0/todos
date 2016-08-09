@@ -13,14 +13,7 @@ Template.addTodo.events({
         event.preventDefault();
         var todoName = $('[name="todoName"]').val();
         var currentList = this._id;
-        var currentUser = Meteor.userId();
-        Todos.insert({
-            name: todoName,
-            completed: false,
-            createdAt: new Date(),
-            createdBy:currentUser,
-            listId: currentList
-        });
+        Meteor.call('createListItem', todoName, currentList);
         $('[name="todoName"]').val('');
     }
 
@@ -28,11 +21,11 @@ Template.addTodo.events({
 
 Template.todoItem.events({
     'click .delete-todo': function(event){
-        event.preventDefault();
+      event.preventDefault();
         var documentId = this._id;
         var confirm = window.confirm("Delete this task?");
         if(confirm){
-            Todos.remove({ _id: documentId });
+            Meteor.call('removeListItem', documentId);
         }
     },
     'keyup [name=todoItem]': function(event){
@@ -41,18 +34,16 @@ Template.todoItem.events({
         } else {
             var documentId = this._id;
             var todoItem = $(event.target).val();
-            Todos.update({ _id: documentId }, {$set: { name: todoItem }});
+            Meteor.call('updateListItem',documentId,todoItem);           
         }
     },
     'change [type=checkbox]': function(){
         var documentId = this._id;
         var isCompleted = this.completed;
-        if(isCompleted){
-            Todos.update({ _id: documentId }, {$set: { completed: false }});
-            console.log("Task marked as incomplete.");
+         if(isCompleted){
+            Meteor.call('changeItemStatus', documentId, false);
         } else {
-            Todos.update({ _id: documentId }, {$set: { completed: true }});
-            console.log("Task marked as complete.");
+            Meteor.call('changeItemStatus', documentId, true);
         }
     }
 
@@ -87,14 +78,16 @@ Template.addList.events({
     'submit form': function(event){
         event.preventDefault();
         var listName = $('[name=listName]').val();
-        var currentUser = Meteor.userId();
-        Lists.insert({
-            name: listName,
-            createdBy:currentUser
-        },function(error,results){
-            Router.go('listPage',{_id:results});
-        });
-        $('[name=listName]').val('');
+      Meteor.call('createNewList',listName,function(error,results){
+       if(error){
+            console.log(error.reason);
+        } else {
+            Router.go('listPage', { _id: results });
+            $('[name=listName]').val('');
+            $('[name=listName]').blur();
+        }
+      });
+        
     }
 });
 
