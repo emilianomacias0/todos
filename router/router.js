@@ -8,13 +8,20 @@ Router.route('/login');
 
 Router.route('/',{
     template:'home',
-    name:'home'
+    name:'home',
+    waitOn:function(){
+    	return Meteor.subscribe('lists');
+    }
 });
+
 
 //Se configura el template pruncipal de la pagina
 Router.configure({
-    layoutTemplate: 'main'
+    layoutTemplate: 'main',
+    loadingTemplate: 'loading'
 });
+
+
 
 Router.route('/list/:_id',{
     template:'listPage',
@@ -33,5 +40,11 @@ Router.route('/list/:_id',{
     		//Dibuja el tamplate llamado "login" en la pantalla
     		this.render("login");
     	}
+    },
+    waitOn:function(){
+    	var currentList = this.params._id;
+    	return [ Meteor.subscribe('lists'), Meteor.subscribe('todos', currentList) ]
     }
 });
+
+
