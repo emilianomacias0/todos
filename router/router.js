@@ -14,3 +14,12 @@ Router.route('/',{
 Router.configure({
     layoutTemplate: 'main'
 });
+
+Router.route('/list/:_id',{
+    template:'listPage',
+    name:'listPage',
+    data:function(){
+        var currentList = this.params._id;
+        return Lists.findOne({_id:currentList});
+    }
+});
