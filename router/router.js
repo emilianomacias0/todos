@@ -11,6 +11,7 @@ Router.route('/',{
     name:'home'
 });
 
+//Se configura el template pruncipal de la pagina
 Router.configure({
     layoutTemplate: 'main'
 });
@@ -20,6 +21,17 @@ Router.route('/list/:_id',{
     name:'listPage',
     data:function(){
         var currentList = this.params._id;
-        return Lists.findOne({_id:currentList});
+        var currentUser=Meteor.userId();
+        return Lists.findOne({_id:currentList,createdBy:currentUser});
+    },
+    onBeforeAction:function(){
+    	var currentUser = Meteor.userId();
+    	if (currentUser) {
+    		//Continue with the normal process
+    		this.next();
+    	} else {
+    		//Dibuja el tamplate llamado "login" en la pantalla
+    		this.render("login");
+    	}
     }
 });

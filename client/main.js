@@ -139,7 +139,13 @@ Template.login.events({
             if (error) {
                 console.log(error.reason)
             } else {
-                Router.go('home');}
+                //Se obtiene la ruta alctal que el usuario esta 
+                var currentRoute = Router.current().route.getName();
+                //Direccionamos al aruta actual
+                if (currentRoute=="login") {
+                    Router.go(currentRoute);
+                }
+            } 
         });
     }
 });
